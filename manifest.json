@@ -1,0 +1,12 @@
+{
+  "name": "修車紀錄",
+  "short_name": "修車紀錄",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1a3a6b",
+  "theme_color": "#1a3a6b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
