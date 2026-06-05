@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a3a6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>修車紀錄</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;background:#f2f4f8;color:#1a1d23;padding-bottom:32px;}
+.hdr{background:#1a3a6b;padding:16px 16px 0;color:#fff;}
+.hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.logo{width:38px;height:38px;border-radius:9px;background:#e8a020;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;}
+.logo img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
+.hdr-title{font-size:16px;font-weight:700;letter-spacing:.3px;color:#fff;}
+.hdr-sub{font-size:11px;opacity:.6;margin-top:1px;color:#fff;}
+.car-tabs{display:flex;gap:0;}
+.car-tab{flex:1;padding:10px 8px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:rgba(255,255,255,.55);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.car-tab.active{color:#fff;border-bottom:2px solid #e8a020;}
+.car-hero{background:#1a3a6b;padding:14px 16px 18px;color:#fff;}
+.car-plate{font-size:24px;font-weight:700;letter-spacing:3px;color:#e8a020;}
+.car-model{font-size:13px;opacity:.7;margin-top:3px;color:#fff;}
+.shop-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.shop-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;border:1.5px solid transparent;transition:all .2s;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15);}
+.shop-chip.active{background:#e8a020;color:#0f2247;border-color:#e8a020;}
+.shop-add{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.5);border:1.5px dashed rgba(255,255,255,.25);background:transparent;font-family:inherit;}
+.total-strip{margin:14px 14px 0;background:#fff;border-radius:12px;border:1px solid #e2e6ed;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+.total-strip .lbl{font-size:12px;color:#6b7280;}
+.total-strip .amt{font-size:22px;font-weight:700;color:#1a3a6b;}
+.total-strip .ct{font-size:11px;color:#9ca3af;margin-top:2px;}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:1.2px;color:#9ca3af;text-transform:uppercase;padding:16px 16px 8px;}
+.tl{padding:0 14px;display:flex;flex-direction:column;gap:10px;}
+.rc{background:#fff;border-radius:12px;border:1px solid #e2e6ed;overflow:hidden;cursor:pointer;}
+.rc-head{display:flex;align-items:stretch;}
+.rc-bar{width:4px;flex-shrink:0;}
+.rc-body{flex:1;padding:12px 12px 12px 10px;}
+.rc-row1{display:flex;justify-content:space-between;align-items:flex-start;}
+.rc-title{font-size:14px;font-weight:700;color:#1a1d23;}
+.rc-date{font-size:11px;color:#9ca3af;}
+.rc-meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap;}
+.km-pill{font-size:11px;background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:12px;}
+.shop-pill{font-size:11px;color:#6b7280;padding:2px 8px;border-radius:12px;background:#f3f4f6;}
+.rc-amt{font-size:18px;font-weight:700;color:#1a1d23;margin-top:8px;}
+.rc-arrow{display:flex;align-items:center;padding:0 12px;color:#9ca3af;font-size:20px;transition:transform .25s;}
+.rc.open .rc-arrow{transform:rotate(180deg);}
+.detail{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1);}
+.rc.open .detail{max-height:1400px;}
+.detail-inner{border-top:1px solid #f3f4f6;padding:12px 14px;}
+.item-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:13px;}
+.item-row:last-child{border-bottom:none;}
+.item-left .name{color:#1a1d23;}
+.item-left .spec{font-size:11px;color:#9ca3af;margin-top:1px;}
+.item-price{font-weight:500;color:#1a1d23;flex-shrink:0;margin-left:8px;}
+.sum-block{margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;}
+.sum-row{display:flex;justify-content:space-between;font-size:12px;color:#6b7280;padding:3px 0;}
+.sum-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#1a1d23;padding:8px 0 0;}
+.note-box{background:#f8f9fb;border-radius:8px;padding:9px 11px;font-size:12px;color:#6b7280;line-height:1.6;margin-top:10px;}
+.note-box strong{font-size:11px;color:#1a1d23;display:block;margin-bottom:2px;}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border:1.5px dashed #d1d5db;border-radius:12px;background:transparent;color:#6b7280;font-size:13px;font-family:inherit;cursor:pointer;margin-top:10px;transition:all .2s;}
+.modal-wrap{display:none;padding:0 14px;margin-top:10px;}
+.modal-wrap.show{display:block;}
+.modal-card{background:#fff;border-radius:12px;border:1px solid #e2e6ed;padding:16px;}
+.modal-card h3{font-size:14px;font-weight:700;margin-bottom:14px;}
+.field-row{margin-bottom:10px;}
+.field-row label{display:block;font-size:11px;color:#6b7280;margin-bottom:4px;}
+.field-row input,.field-row select,.field-row textarea{width:100%;padding:9px 11px;border:1px solid #e2e6ed;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1a1d23;outline:none;}
+.field-row input:focus,.field-row select:focus,.field-row textarea:focus{border-color:#1a3a6b;}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.items-editor{border:1px solid #e2e6ed;border-radius:8px;overflow:hidden;margin-bottom:10px;}
+.items-editor-hdr{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:#f8f9fb;font-size:12px;color:#6b7280;font-weight:500;}
+.items-editor-hdr button{font-size:12px;padding:4px 10px;border:1px solid #e2e6ed;border-radius:6px;background:#fff;color:#1a1d23;cursor:pointer;font-family:inherit;}
+.item-edit-row{display:grid;grid-template-columns:1fr 72px 28px;gap:6px;padding:8px 11px;border-top:1px solid #f3f4f6;align-items:center;}
+.item-edit-row input{padding:6px 8px;border:1px solid #e2e6ed;border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:#1a1d23;outline:none;width:100%;}
+.del-item{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:16px;padding:0;text-align:center;}
+.btn-row{display:flex;gap:8px;margin-top:4px;}
+.btn-cancel{flex:1;padding:11px;border:1px solid #e2e6ed;border-radius:8px;background:transparent;color:#6b7280;font-size:13px;font-family:inherit;cursor:pointer;}
+.btn-save{flex:2;padding:11px;border:none;border-radius:8px;background:#1a3a6b;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;}
+.shop-modal-wrap{display:none;padding:0 14px;margin-top:6px;}
+.shop-modal-wrap.show{display:block;}
+.shop-modal-card{background:#fff;border-radius:12px;border:1px solid #e2e6ed;padding:14px;}
+.shop-modal-card h3{font-size:13px;font-weight:700;margin-bottom:10px;}
+.shop-modal-card input{width:100%;padding:9px 11px;border:1px solid #e2e6ed;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1a1d23;outline:none;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <!-- 換 ICON：把下面這行的 🚗 換成 <img src="你的圖片.png"> 或任何 emoji -->
+    <div class="logo" id="app-logo">🚗</div>
+    <div>
+      <div class="hdr-title">修車紀錄</div>
+      <div class="hdr-sub">個人車輛維修費用追蹤</div>
+    </div>
+  </div>
+  <div class="car-tabs">
+    <div class="car-tab active" onclick="switchCar(0,this)">豆福 · AQS-1905</div>
+    <div class="car-tab" onclick="switchCar(1,this)">豆瓜吉 · EAE-2953</div>
+  </div>
+</div>
+
+<div id="car-hero" class="car-hero"></div>
+
+<div id="shop-modal-area" class="shop-modal-wrap">
+  <div class="shop-modal-card">
+    <h3>新增維修廠</h3>
+    <input type="text" id="new-shop-input" placeholder="輸入車廠名稱…">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeShopModal()">取消</button>
+      <button class="btn-save" onclick="addShop()">新增</button>
+    </div>
+  </div>
+</div>
+
+<div id="total-area"></div>
+<div class="sec-label">維修紀錄</div>
+<div id="timeline" class="tl"></div>
+<div id="add-area" style="padding:0 14px;"></div>
+
+<div id="add-modal-area" class="modal-wrap">
+  <div class="modal-card">
+    <h3>新增維修紀錄</h3>
+    <div class="two-col">
+      <div class="field-row"><label>日期</label><input type="date" id="f-date"></div>
+      <div class="field-row"><label>里程 (km)</label><input type="number" id="f-km" placeholder="0"></div>
+    </div>
+    <div class="field-row"><label>主要項目名稱</label><input type="text" id="f-title" placeholder="定期保養、換輪胎…"></div>
+    <div class="field-row"><label>維修廠</label><select id="f-shop"></select></div>
+    <div class="items-editor">
+      <div class="items-editor-hdr">
+        <span>明細項目</span>
+        <button onclick="addItemRow()">+ 新增一行</button>
+      </div>
+      <div id="item-rows"></div>
+    </div>
+    <div class="field-row"><label>備註說明</label><textarea id="f-note" rows="2" placeholder="維修說明、提醒事項…"></textarea></div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeAddModal()">取消</button>
+      <button class="btn-save" onclick="saveRecord()">儲存紀錄</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS=['#1a3a6b','#7c3aed','#0d9488','#2d5a9e','#b45309','#dc2626'];
+let activeCarIdx=0,editRowCount=0,activeShopFilter='全部';
+
+const cars=[
+  {
+    plate:'AQS-1905',model:'Mini Cooper · 白黑',nickname:'豆福',
+    shops:['愛豐車業'],
+    records:[
+      {id:1,date:'2025-12-29',title:'引擎大修',shop:'愛豐車業',km:141706,color:'#1a3a6b',
+       items:[{name:'渦輪供油管',price:4725},{name:'渦輪回油管',price:4725},{name:'引擎本體下外蓋',price:6300},{name:'引擎腳',price:7560},{name:'下引擎腳',price:3623},{name:'變速箱腳',price:6300},{name:'水泵總成',price:14963},{name:'變速箱油冷卻器',price:17325},{name:'冷水 PEAK 藍水 ×5',price:1000},{name:'變速箱冷卻器密封環 ×2',price:420},{name:'變速箱油 ×10',price:18900},{name:'上水管總成',price:5985},{name:'外皮帶',price:2549},{name:'上水管接頭',price:1575},{name:'燃油箱油氣回收管',price:4725},{name:'電瓶 AGM 70',price:5500},{name:'後廂蓋六角鎖',price:5825},{name:'輪胎前後交叉對調',price:0}],
+       parts:112000,labor:0,note:'行車前務必檢查副水箱水位！下次保養：機油、煞車油、引擎空氣芯、冷氣濾網'},
+      {id:2,date:'2026-03-19',title:'變速箱整修',shop:'愛豐車業',km:143843,color:'#7c3aed',
+       items:[{name:'變速箱內部整修及閥體更換',price:80000},{name:'引擎後曲軸更換',price:0,spec:'贈送'}],
+       parts:80000,labor:0,note:''},
+      {id:3,date:'2026-05-12',title:'定期保養',shop:'愛豐車業',km:144981,color:'#16a34a',
+       items:[{name:'機油 ZUMINOL 5W30 SP ×4',price:2200},{name:'機油濾清器',price:0,spec:'贈送'},{name:'定期保養工資',price:600},{name:'冷氣濾網',price:1260},{name:'煞車油 BOT4 ROWE',price:1400},{name:'四輪卡鉗套潤滑',price:800},{name:'雨刷噴水馬達',price:2520},{name:'雨刷噴水馬達橡膠塞',price:620},{name:'輪胎前輪各別左右對調',price:0,spec:'贈送'}],
+       parts:8800,labor:600,note:'冷氣壓縮機低壓壓力過高且漂浮不定，前煞車模塊下次保養特別檢查'},
+      {id:4,date:'2026-05-22',title:'冷氣維修',shop:'愛豐車業',km:145411,color:'#0d9488',
+       items:[{name:'冷氣壓縮機',price:27300},{name:'壓縮器散熱片',price:6300},{name:'冷氣管路清洗',price:0,spec:'贈送'}],
+       parts:33600,labor:0,note:''},
+      {id:5,date:'2026-06-04',title:'冷卻水箱更換',shop:'愛豐車業',km:null,color:'#dc2626',
+       items:[{name:'水箱-副廠',price:14550},{name:'冷卻水-藍水 ×5',price:1000}],
+       parts:15550,labor:0,note:''}
+    ]
+  },
+  {
+    plate:'EAE-2953',model:'Hyundai Ioniq 5',nickname:'豆瓜吉',
+    shops:['愛豐車業'],
+    records:[]
+  }
+];
+
+function switchCar(idx,el){
+  activeCarIdx=idx;activeShopFilter='全部';
+  document.querySelectorAll('.car-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  closeAddModal();closeShopModal();render();
+}
+
+function render(){
+  const car=cars[activeCarIdx];
+  renderHero(car);renderTotal(car);renderTimeline(car);renderAddBtn();populateShopSelect();
+}
+
+function renderHero(car){
+  const allShops=['全部',...car.shops];
+  const chips=allShops.map(s=>`<div class="shop-chip ${activeShopFilter===s?'active':''}" onclick="filterShop(this,'${s}')">${s}</div>`).join('');
+  document.getElementById('car-hero').innerHTML=`
+    <div class="car-plate">${car.plate}</div>
+    <div class="car-model">${car.model}</div>
+    <div class="shop-row">${chips}<button class="shop-add" onclick="openShopModal()">＋ 新增車廠</button></div>`;
+}
+
+function filterShop(el,shop){
+  document.querySelectorAll('.shop-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');activeShopFilter=shop;renderTimeline(cars[activeCarIdx]);
+}
+
+function renderTotal(car){
+  const total=car.records.reduce((s,r)=>s+(r.parts||0)+(r.labor||0),0);
+  document.getElementById('total-area').innerHTML=`
+    <div class="total-strip">
+      <div><div class="lbl">歷次費用總計</div><div class="ct">共 ${car.records.length} 次到廠</div></div>
+      <div class="amt">$${total.toLocaleString()}</div>
+    </div>`;
+}
+
+function renderTimeline(car){
+  const filtered=activeShopFilter==='全部'?car.records:car.records.filter(r=>r.shop===activeShopFilter);
+  if(!filtered.length){
+    document.getElementById('timeline').innerHTML=`<div style="text-align:center;padding:32px 0;color:#9ca3af;font-size:13px;">尚無紀錄，點下方新增</div>`;
+    return;
+  }
+  const sorted=[...filtered].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('timeline').innerHTML=sorted.map(r=>renderCard(r)).join('');
+}
+
+function renderCard(r){
+  const total=(r.parts||0)+(r.labor||0);
+  const itemsHtml=r.items.map(it=>`
+    <div class="item-row">
+      <div class="item-left"><div class="name">${it.name}</div>${it.spec?`<div class="spec">${it.spec}</div>`:''}</div>
+      <div class="item-price">${it.price>0?'$'+it.price.toLocaleString():'—'}</div>
+    </div>`).join('');
+  const noteHtml=r.note?`<div class="note-box"><strong>備註</strong>${r.note}</div>`:'';
+  return `<div class="rc" id="rc-${r.id}" onclick="toggleCard(this)">
+    <div class="rc-head">
+      <div class="rc-bar" style="background:${r.color||'#1a3a6b'};"></div>
+      <div class="rc-body">
+        <div class="rc-row1"><div class="rc-title">${r.title}</div><div class="rc-date">${r.date}</div></div>
+        <div class="rc-meta">
+          ${r.km?`<span class="km-pill">${r.km.toLocaleString()} km</span>`:''}
+          <span class="shop-pill">${r.shop}</span>
+        </div>
+        <div class="rc-amt">$${total.toLocaleString()}</div>
+      </div>
+      <div class="rc-arrow">⌄</div>
+    </div>
+    <div class="detail"><div class="detail-inner">
+      ${itemsHtml}
+      <div class="sum-block">
+        ${r.parts?`<div class="sum-row"><span>零配件</span><span>$${r.parts.toLocaleString()}</span></div>`:''}
+        ${r.labor?`<div class="sum-row"><span>工資</span><span>$${r.labor.toLocaleString()}</span></div>`:''}
+        <div class="sum-total"><span>合計</span><span>$${total.toLocaleString()}</span></div>
+      </div>
+      ${noteHtml}
+    </div></div>
+  </div>`;
+}
+
+function toggleCard(el){el.classList.toggle('open');}
+
+function renderAddBtn(){
+  document.getElementById('add-area').innerHTML=`<button class="add-btn" onclick="openAddModal()">＋ 手動新增維修紀錄</button>`;
+}
+
+function openAddModal(){
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-km').value='';document.getElementById('f-title').value='';document.getElementById('f-note').value='';
+  document.getElementById('item-rows').innerHTML='';editRowCount=0;addItemRow();addItemRow();
+  populateShopSelect();
+  document.getElementById('add-modal-area').classList.add('show');
+  document.getElementById('add-modal-area').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeAddModal(){document.getElementById('add-modal-area').classList.remove('show');}
+
+function populateShopSelect(){
+  const sel=document.getElementById('f-shop');if(!sel)return;
+  sel.innerHTML=cars[activeCarIdx].shops.map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+
+function addItemRow(){
+  editRowCount++;const id='er-'+editRowCount;
+  const div=document.createElement('div');div.className='item-edit-row';div.id=id;
+  div.innerHTML=`<input type="text" placeholder="項目名稱"><input type="number" placeholder="金額" min="0"><button class="del-item" onclick="document.getElementById('${id}').remove()">×</button>`;
+  document.getElementById('item-rows').appendChild(div);
+}
+
+function saveRecord(){
+  const car=cars[activeCarIdx];
+  const title=document.getElementById('f-title').value.trim();
+  const date=document.getElementById('f-date').value;
+  const km=parseInt(document.getElementById('f-km').value)||null;
+  const shop=document.getElementById('f-shop').value;
+  const note=document.getElementById('f-note').value.trim();
+  if(!title||!date){alert('請填寫日期與主要項目名稱');return;}
+  const rows=document.querySelectorAll('#item-rows .item-edit-row');
+  const items=[];let parts=0;
+  rows.forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    const name=inputs[0].value.trim();const price=parseInt(inputs[1].value)||0;
+    if(name){items.push({name,price});parts+=price;}
+  });
+  car.records.push({id:Date.now(),date,title,shop,km,color:COLORS[car.records.length%COLORS.length],items,parts,labor:0,note});
+  closeAddModal();renderTotal(car);renderTimeline(car);
+}
+
+function openShopModal(){
+  document.getElementById('new-shop-input').value='';
+  document.getElementById('shop-modal-area').classList.add('show');
+  document.getElementById('shop-modal-area').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeShopModal(){document.getElementById('shop-modal-area').classList.remove('show');}
+function addShop(){
+  const val=document.getElementById('new-shop-input').value.trim();if(!val)return;
+  const car=cars[activeCarIdx];if(!car.shops.includes(val))car.shops.push(val);
+  closeShopModal();renderHero(car);populateShopSelect();
+}
+
+render();
+</script>
+</body>
+</html>
